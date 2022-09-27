@@ -15,7 +15,8 @@ const Product = (props) => {
         <div className='product'>
             {/* <h1>this is products</h1> */}
             <div className="product-info">
-                <img src={img} alt="" />
+                {/* onError use to handle broken image  */}
+                <img src={img} alt="" onError={e => { e.currentTarget.src = 'https://tinyurl.com/yk4hawcw'; }} />
                 <p className='product-name'>{name}</p>
                 <p>Price: {price}</p>
                 <p><small>Seller: {seller}</small></p>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { addToDb } from '../../utilities/fakedb';
+import { addToDb, getStoredCart } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css'
@@ -19,12 +19,43 @@ const Shop = () => {
     }, [])
     // data load end 
 
+    //side effect: collect data from local storage
+    useEffect(() => {
+        const storedCart = getStoredCart();
+        const savedCart = [];
+        // console.log(storedCart);
+        for (const id in storedCart) {
+            // console.log(id);
+            const addedProduct = Products.find(product => product.id === id)
+            // console.log(addedProduct);
+            if (addedProduct) {
+                const quantity = storedCart[id];
+                addedProduct.quantity = quantity;
+                savedCart.push(addedProduct);
+            }
+        }
+        setCart(savedCart);
+        ///[Products] dependency base on product change
+    }, [Products]);
+
     //handle event by onClick function start
-    const handleAddToCart = (product) => {
+    const handleAddToCart = (selectedproduct) => {
         // console.log(product);
-        const newCart = [...cart, product];
+        let newCart = [];
+        const exists = cart.find(product => product.id === selectedproduct.id)
+        if (!exists) {
+            selectedproduct.quantity = 1;
+            newCart = [...cart, selectedproduct];
+        }
+        else {
+            const rest = cart.filter(product => product.id != selectedproduct.id);
+            exists.quantity = exists.quantity + 1;
+            newCart = [...rest, exists];
+        }
         //cart state update
         setCart(newCart);
+        //add in local storage with id
+        addToDb(selectedproduct.id)
     }
     //handle event by onClick function end
 
